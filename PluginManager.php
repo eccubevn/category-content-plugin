@@ -19,19 +19,7 @@ use Plugin\CategoryContent\Entity\CategoryContent;
  */
 class PluginManager extends AbstractPluginManager
 {
-    /**
-     * @var string コピー先リソースディレクトリ
-     */
-    private $target;
 
-    /**
-     * PluginManager constructor.
-     */
-    public function __construct()
-    {
-        // コピー先のディレクトリ
-        $this->target = __DIR__.'/../../../html/plugin/categorycontent';
-    }
     /**
      * プラグインインストール時の処理.
      *
@@ -51,6 +39,7 @@ class PluginManager extends AbstractPluginManager
      */
     public function uninstall($config, $app)
     {
+        $this->migrationSchema($app, __DIR__.'/Resource/doctrine/migration', $config['code'], 0);
     }
 
     /**
@@ -63,6 +52,7 @@ class PluginManager extends AbstractPluginManager
      */
     public function enable($config, $app)
     {
+        $this->migrationSchema($app, __DIR__.'/Resource/doctrine/migration', $config['code']);
         $em = $app['orm.em'];
         $em->getConnection()->beginTransaction();
         try {
