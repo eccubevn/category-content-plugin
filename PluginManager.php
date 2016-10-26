@@ -1,13 +1,12 @@
 <?php
 /*
-* This file is part of EC-CUBE
-*
-* Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
-* http://www.lockon.co.jp/
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+  * This file is part of the CategoryContent plugin
+  *
+  * Copyright (C) 2016 LOCKON CO.,LTD. All Rights Reserved.
+  *
+  * For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 namespace Plugin\CategoryContent;
 
@@ -54,26 +53,20 @@ class PluginManager extends AbstractPluginManager
     {
         $this->migrationSchema($app, __DIR__.'/Resource/doctrine/migration', $config['code']);
         $em = $app['orm.em'];
-        $em->getConnection()->beginTransaction();
+
+        // serviceで定義している情報が取得できないため、直接呼び出す
         try {
-            // serviceで定義している情報が取得できないため、直接呼び出す
-            try {
-                // EC-CUBE3.0.3対応
-                $CategoryContent = $em->getRepository('Plugin\CategoryContent\Entity\CategoryContent')->find(1);
-            } catch (\Exception $e) {
-                return null;
-            }
-            if (!$CategoryContent) {
-                $CategoryContent = new CategoryContent();
-                // IDは1固定
-                $CategoryContent->setId(1);
-                $em->persist($CategoryContent);
-                $em->flush($CategoryContent);
-            }
-            $em->getConnection()->commit();
+            // EC-CUBE3.0.3対応
+            $CategoryContent = $em->getRepository('Plugin\CategoryContent\Entity\CategoryContent')->find(1);
         } catch (\Exception $e) {
-            $em->getConnection()->rollback();
-            throw $e;
+            return null;
+        }
+        if (!$CategoryContent) {
+            $CategoryContent = new CategoryContent();
+            // IDは1固定
+            $CategoryContent->setId(1);
+            $em->persist($CategoryContent);
+            $em->flush($CategoryContent);
         }
     }
     /**

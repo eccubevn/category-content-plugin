@@ -41,7 +41,7 @@ class CategoryContentLegacyEvent
      *
      * @param FilterResponseEvent $event
      */
-    public function onRenderProductCategoryListBefore(FilterResponseEvent $event)
+    public function onRenderProductListBefore(FilterResponseEvent $event)
     {
         $app = $this->app;
 
@@ -100,7 +100,7 @@ class CategoryContentLegacyEvent
             $form->handleRequest($app['request']);
 
             if ($form->isValid()) {
-                /* @var Category $target_category */
+                /* @var Category $CategoryContent */
                 //$TargetCategory = $event->getArgument('TargetCategory');
 
                 $CategoryContent = new CategoryContent();
@@ -197,17 +197,16 @@ class CategoryContentLegacyEvent
             $CategoryContent = new CategoryContent();
         }
 
-        if ('POST' === $app['request']->getMethod()) {
-            $form->handleRequest($app['request']);
+        $form->handleRequest($app['request']);
 
-            if ($form->isValid()) {
-                $CategoryContent
-                    ->setId($id)
-                    ->setContent($form['content']->getData());
+        if ($form->isValid()) {
+            $CategoryContent
+                ->setId($id)
+                ->setContent($form['content']->getData());
 
-                $app['orm.em']->persist($CategoryContent);
-                $app['orm.em']->flush();
-            }
+            $app['orm.em']->persist($CategoryContent);
+            $app['orm.em']->flush();
         }
+
     }
 }
