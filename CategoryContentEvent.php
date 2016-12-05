@@ -1,13 +1,12 @@
 <?php
 /*
-* This file is part of EC-CUBE
-*
-* Copyright(c) 2000-2015 LOCKON CO.,LTD. All Rights Reserved.
-* http://www.lockon.co.jp/
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+  * This file is part of the CategoryContent plugin
+  *
+  * Copyright (C) 2016 LOCKON CO.,LTD. All Rights Reserved.
+  *
+  * For the full copyright and license information, please view the LICENSE
+  * file that was distributed with this source code.
+  */
 
 namespace Plugin\CategoryContent;
 
@@ -19,11 +18,15 @@ use Eccube\Event\TemplateEvent;
 use Plugin\CategoryContent\Entity\CategoryContent;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Class CategoryContentEvent.
+ */
 class CategoryContentEvent
 {
     /**
-     * プラグインが追加するフォーム名
+     * プラグインが追加するフォーム名.
      */
     const CATEGORY_CONTENT_TEXTAREA_NAME = 'plg_category_content';
 
@@ -33,7 +36,7 @@ class CategoryContentEvent
     private $app;
 
     /**
-     * v3.0.0 - 3.0.8 向けのイベントを処理するインスタンス
+     * v3.0.0 - 3.0.8 向けのイベントを処理するインスタンス.
      *
      * @var CategoryContentLegacyEvent
      */
@@ -42,7 +45,7 @@ class CategoryContentEvent
     /**
      * CategoryContentEvent constructor.
      *
-     * @param $app
+     * @param Application $app
      */
     public function __construct($app)
     {
@@ -91,7 +94,7 @@ class CategoryContentEvent
      */
     public function onFormInitializeAdminProductCategory(EventArgs $event)
     {
-        /** @var Category $target_category */
+        /* @var Category $TargetCategory */
         $TargetCategory = $event->getArgument('TargetCategory');
         $id = $TargetCategory->getId();
 
@@ -117,8 +120,14 @@ class CategoryContentEvent
                 'required' => false,
                 'label' => false,
                 'mapped' => false,
+                'constraints' => array(
+                    new Assert\Length(array(
+                        'max' => $this->app['config']['category_text_area_len'],
+                    )),
+                ),
                 'attr' => array(
-                    'placeholder' => 'コンテンツを入力してください(HTMLタグ使用可)',
+                    'maxlength' => $this->app['config']['category_text_area_len'],
+                    'placeholder' => $this->app->trans('admin.plugin.category.content'),
                 ),
             )
         );
@@ -136,7 +145,7 @@ class CategoryContentEvent
     {
         /** @var Application $app */
         $app = $this->app;
-        /** @var Category $target_category */
+        /* @var Category $TargetCategory */
         $TargetCategory = $event->getArgument('TargetCategory');
         /** @var FormInterface $form */
         $form = $event->getArgument('form');
@@ -158,10 +167,15 @@ class CategoryContentEvent
         $app['orm.em']->flush($CategoryContent);
     }
 
-#region v3.0.0 - 3.0.8 用のイベント
+//region v3.0.0 - 3.0.8 用のイベント
     /**
+     * onRenderProductListBefore.
+     *
      * for v3.0.0 - 3.0.8
-     * @deprecated for since v3.0.0, to be removed in 3.1.
+     *
+     * @param FilterResponseEvent $event
+     *
+     * @deprecated for since v3.0.0, to be removed in 3.1
      */
     public function onRenderProductListBefore(FilterResponseEvent $event)
     {
@@ -173,8 +187,13 @@ class CategoryContentEvent
     }
 
     /**
+     * onRenderAdminProductCategoryEditBefore.
+     *
      * for v3.0.0 - 3.0.8
-     * @deprecated for since v3.0.0, to be removed in 3.1.
+     *
+     * @param FilterResponseEvent $event
+     *
+     * @deprecated for since v3.0.0, to be removed in 3.1
      */
     public function onRenderAdminProductCategoryEditBefore(FilterResponseEvent $event)
     {
@@ -186,8 +205,11 @@ class CategoryContentEvent
     }
 
     /**
+     * onAdminProductCategoryEditAfter.
+     *
      * for v3.0.0 - 3.0.8
-     * @deprecated for since v3.0.0, to be removed in 3.1.
+     *
+     * @deprecated for since v3.0.0, to be removed in 3.1
      */
     public function onAdminProductCategoryEditAfter()
     {
@@ -197,9 +219,11 @@ class CategoryContentEvent
 
         $this->legacyEvent->onAdminProductCategoryEditAfter();
     }
-# endregion
+// endregion
 
     /**
+     * supportNewHookPoint.
+     *
      * @return bool v3.0.9以降のフックポイントに対応しているか？
      */
     private function supportNewHookPoint()
